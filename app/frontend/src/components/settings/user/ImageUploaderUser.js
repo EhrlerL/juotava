@@ -6,13 +6,22 @@ import Row from 'react-bootstrap/Row';
 
 import imgplaceholder from '../../../image-placeholder.jpeg';
 import { useEffect, useState } from 'react';
+import ImageEditor from '../../general/ImageEditor';
 
 function ImageUploaderUser({handleChangeFunction, passedImage}) {
 
     const [image, setImage] = useState();
+    const [editMode, setEditMode] = useState(false);
     const handleImageChange = async (e) => {
         let base64File = await convertToBase64(e.target.files[0]);
         setImage(base64File);
+        setEditMode(true);
+        handleChangeFunction(base64File);
+    }
+
+    const handleImageCrop = (base64File) => {
+        setImage(base64File);
+        setEditMode(false);
         handleChangeFunction(base64File);
     }
 
@@ -37,12 +46,13 @@ function ImageUploaderUser({handleChangeFunction, passedImage}) {
         <Container className='text-center'>
             <Row>
                 <Col>
-                <Image src={image? image : imgplaceholder} style={{height: 250, width: 250}} className="mb-3" rounded />
+                {/*<Image src={image? image : imgplaceholder} style={{height: 250, width: 250}} className="mb-3" rounded />*/}
+                <ImageEditor inputImageB64={image} getEditedImageB64={handleImageCrop} edit={editMode} setEdit={setEditMode} />
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <Button type="file" variant="primary" className="me-1" onClick={()=> document.getElementById('uploadInput').click()}>Hochladen</Button>
+                    <Button type="file" variant="primary" className="me-1" onClick={()=> document.getElementById('uploadInput').click()}>Bild ändern</Button>
                     <input id='uploadInput' hidden type="file"
                         accept='image/*, capture=camera'
                         onChange={(e) => handleImageChange(e)} />

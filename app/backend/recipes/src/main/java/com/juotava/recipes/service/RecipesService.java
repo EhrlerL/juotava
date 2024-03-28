@@ -1,6 +1,7 @@
 package com.juotava.recipes.service;
 
 import com.juotava.recipes.model.*;
+import com.juotava.recipes.model.Image;
 import com.juotava.recipes.model.dto.ImageRequest;
 import com.juotava.recipes.model.dto.ImageResposeSuccess;
 import com.juotava.recipes.repository.image.ImageRepository;
@@ -17,9 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Console;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -196,9 +204,40 @@ public class RecipesService {
         if (response == null || response.getData() == null || response.getData().isEmpty()) {
             return null;
         }
+        byte[] imageBytes = Base64.getDecoder().decode(response.getData().get(0).getB64_json());
+        ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+        BufferedImage originalImage;
+        try {
+            originalImage = ImageIO.read(bis);
+        } catch (IOException e) {
+            System.out.println("ERROR: Generated Image could not be converted to bytestream");
+            return null;
+        }
+
+        BufferedImage resizedImage = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = resizedImage.createGraphics();
+        g2d.drawImage(originalImage, 0, 0, 512, 512, null);
+        g2d.dispose();
+        String resizedImageBase64 = encodeImageToBase64(resizedImage);
+
         return new Image(
                 response.getData().get(0).getRevised_prompt(),
-                "data:image/png;base64,"+response.getData().get(0).getB64_json()
+                "data:image/png;base64,"+resizedImageBase64
         );
+    }
+
+    private String encodeImageToBase64(BufferedImage image) {
+        // Convert BufferedImage to byte[]
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, "png", bos);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        // Encode byte[] to base64 string
+        byte[] imageBytes = bos.toByteArray();
+        return Base64.getEncoder().encodeToString(imageBytes);
     }
 }

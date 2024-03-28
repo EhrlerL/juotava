@@ -10,6 +10,7 @@ import { Modal, Spinner } from 'react-bootstrap';
 import { useAuth0 } from '@auth0/auth0-react';
 import { AuthenticatedRequestWrapperContext } from '../../App';
 import { baseUrlRecipes } from '../../config/config';
+import ImageEditor from '../general/ImageEditor';
 
 function ImageUploaderComposer({handleChangeFunction, recipe, validationFunction, isAuthenticated, getAccessTokenSilently, user, showModal, setShowModal}) {
     const arw = useContext(AuthenticatedRequestWrapperContext);
@@ -18,6 +19,7 @@ function ImageUploaderComposer({handleChangeFunction, recipe, validationFunction
     const [image, setImage] = useState();
     const [genImage, setGenImage] = useState();
     const [genSuccess, setGenSuccess] = useState('');
+    const [editMode, setEditMode] = useState(false);
 
     const handleModalClose = () => setShowModal(false);
     const handleModalShow = () => setShowModal(true);
@@ -25,6 +27,17 @@ function ImageUploaderComposer({handleChangeFunction, recipe, validationFunction
     const handleImageChangeUpload = async (e) => {
         let base64File = await convertToBase64(e.target.files[0]);
         setImage(base64File);
+        setEditMode(true);
+        handleChangeFunction(
+            {
+                prompt: '',
+                base64data: base64File,
+            });
+    }
+
+    const handleImageChangeCrop = (base64File) => {
+        setImage(base64File);
+        setEditMode(false);
         handleChangeFunction(
             {
                 prompt: '',
@@ -71,7 +84,8 @@ function ImageUploaderComposer({handleChangeFunction, recipe, validationFunction
         <Container className='text-center'>
             <Row>
                 <Col>
-                <Image src={image? image : imgplaceholder} style={{maxHeight: 250, maxWidth: 250}} className="mb-3" rounded />
+                    <ImageEditor inputImageB64={image} getEditedImageB64={handleImageChangeCrop} edit={editMode} setEdit={setEditMode} />
+                    {/*<Image src={image? image : imgplaceholder} style={{maxHeight: 250, maxWidth: 250}} className="mb-3" rounded />*/}
                 </Col>
             </Row>
             <Row>
