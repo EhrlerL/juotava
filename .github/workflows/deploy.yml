@@ -10,7 +10,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4.1.6
+        uses: actions/checkout@v4.1.7
       - name: Insert OpenAI API key to recipes backend
         run: |
           sed -i "s/dummykey/${{ secrets.OPENAI_KEY }}/g" app/backend/recipes/src/main/resources/application.properties

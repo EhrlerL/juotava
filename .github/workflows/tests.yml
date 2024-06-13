@@ -8,7 +8,7 @@ jobs:
   JUnit-Recipes:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.1.6
+    - uses: actions/checkout@v4.1.7
     - name: Set up JDK
       uses: actions/setup-java@v4.2.1
       with:
@@ -25,7 +25,7 @@ jobs:
   JUnit-Users:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.1.6
+    - uses: actions/checkout@v4.1.7
     - name: Set up JDK
       uses: actions/setup-java@v4.2.1
       with:
